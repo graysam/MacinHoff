@@ -56,6 +56,10 @@ public:
     StatusSnapshot disconnect();
     StatusSnapshot startRX();
     StatusSnapshot stopRX();
+    StatusSnapshot applyGainControls(bool ampEnabled,
+                                     int lnaGain,
+                                     int vgaGain,
+                                     int txVGAGain);
     StatusSnapshot applyTuning(std::uint64_t frequencyHz,
                                double sampleRate,
                                bool ampEnabled,

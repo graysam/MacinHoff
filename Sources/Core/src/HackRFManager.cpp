@@ -537,6 +537,58 @@ StatusSnapshot HackRFManager::stopRX() {
     return state.status;
 }
 
+StatusSnapshot HackRFManager::applyGainControls(bool ampEnabled,
+                                                int lnaGain,
+                                                int vgaGain,
+                                                int txVGAGain) {
+    auto& state = impl();
+    hackrf_device* device = nullptr;
+    const bool clampedAmpEnabled = ampEnabled;
+    const int clampedLnaGain = clampGain(lnaGain, 0, 40, 8);
+    const int clampedVgaGain = clampGain(vgaGain, 0, 62, 2);
+    const int clampedTxVGAGain = clampGain(txVGAGain, 0, 47, 1);
+
+    {
+        std::lock_guard lock(state.mutex);
+        state.status.ampEnabled = clampedAmpEnabled;
+        state.status.lnaGain = clampedLnaGain;
+        state.status.vgaGain = clampedVgaGain;
+        state.status.txVGAGain = clampedTxVGAGain;
+        state.status.lastError.reset();
+        device = state.device;
+
+        if (device == nullptr) {
+            state.enumerateDevices();
+            state.status.connectionSummary = state.status.devices.empty() ? "No HackRF detected" : "HackRF available, not connected";
+            state.status.transportState = TransportState::idle;
+            return state.status;
+        }
+    }
+
+    try {
+        expectSuccess(hackrf_set_amp_enable(device, clampedAmpEnabled ? 1 : 0), "hackrf_set_amp_enable");
+        expectSuccess(hackrf_set_lna_gain(device, clampedLnaGain), "hackrf_set_lna_gain");
+        expectSuccess(hackrf_set_vga_gain(device, clampedVgaGain), "hackrf_set_vga_gain");
+        expectSuccess(hackrf_set_txvga_gain(device, clampedTxVGAGain), "hackrf_set_txvga_gain");
+    } catch (const std::exception& exception) {
+        std::lock_guard lock(state.mutex);
+        state.status.transportState = TransportState::fault;
+        state.status.lastError = exception.what();
+        state.status.connectionSummary = "HackRF gain update fault";
+        return state.status;
+    }
+
+    std::lock_guard lock(state.mutex);
+    if (state.isStreaming()) {
+        state.status.transportState = TransportState::receiving;
+        state.status.connectionSummary = "Receiving on " + state.status.connectedSerialNumber.value_or("HackRF");
+    } else {
+        state.status.transportState = TransportState::idle;
+        state.status.connectionSummary = "Configured " + state.status.connectedSerialNumber.value_or("HackRF");
+    }
+    return state.status;
+}
+
 StatusSnapshot HackRFManager::applyTuning(std::uint64_t frequencyHz,
                                           double sampleRate,
                                           bool ampEnabled,

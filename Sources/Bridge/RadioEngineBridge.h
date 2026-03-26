@@ -83,6 +83,10 @@ typedef NS_ENUM(NSInteger, MHRadioTransportState) {
 - (MHRadioStatusSnapshot *)disconnectDevice;
 - (MHRadioStatusSnapshot *)startRX;
 - (MHRadioStatusSnapshot *)stopRX;
+- (MHRadioStatusSnapshot *)applyAmpEnabled:(BOOL)ampEnabled
+                                   lnaGain:(NSInteger)lnaGain
+                                   vgaGain:(NSInteger)vgaGain
+                                 txVGAGain:(NSInteger)txVGAGain;
 - (MHRadioStatusSnapshot *)applyFrequencyHz:(uint64_t)frequencyHz
                                  sampleRate:(double)sampleRate
                                  ampEnabled:(BOOL)ampEnabled

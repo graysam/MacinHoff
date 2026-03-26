@@ -15,6 +15,13 @@ private struct RadioApplyRequest: Sendable {
     let rxFilterHz: Double
 }
 
+private struct RadioGainRequest: Sendable {
+    let ampEnabled: Bool
+    let lnaGain: Int
+    let vgaGain: Int
+    let txVGAGain: Int
+}
+
 private struct RadioStartRFRequest: Sendable {
     let selectedSerial: String?
     let applyRequest: RadioApplyRequest
@@ -61,6 +68,15 @@ private actor RadioEngineWorker {
             txVGAGain: request.txVGAGain,
             mode: request.mode,
             rxFilterHz: request.rxFilterHz
+        )
+    }
+
+    func applyGainControls(_ request: RadioGainRequest) -> MHRadioStatusSnapshot {
+        bridge.applyAmpEnabled(
+            request.ampEnabled,
+            lnaGain: request.lnaGain,
+            vgaGain: request.vgaGain,
+            txVGAGain: request.txVGAGain
         )
     }
 
@@ -123,6 +139,7 @@ final class RadioControlViewModel: ObservableObject {
     private var pollingTask: Task<Void, Never>?
     private var pendingApplyTask: Task<Void, Never>?
     private var applySequence = 0
+    private var lastRequestedApply: RadioApplyRequest?
     private var selectedAudioOutputName = "System Default"
 
     init() {
@@ -203,6 +220,7 @@ final class RadioControlViewModel: ObservableObject {
             selectedSerial: resolvedSelectedSerial(from: globalSettings.selectedDeviceSerial),
             applyRequest: makeApplyRequest(globalSettings: globalSettings, bandSession: bandSession)
         )
+        lastRequestedApply = request.applyRequest
         performOperation { worker in
             await worker.startRF(request)
         }
@@ -210,6 +228,7 @@ final class RadioControlViewModel: ObservableObject {
 
     func stopRF() {
         invalidatePendingApply()
+        lastRequestedApply = nil
         performOperation { worker in
             await worker.stopRF()
         }
@@ -219,7 +238,12 @@ final class RadioControlViewModel: ObservableObject {
         guard let bandSession else { return }
         selectedAudioOutputName = globalSettings.audioOutputName
         let request = makeApplyRequest(globalSettings: globalSettings, bandSession: bandSession)
-        scheduleApply(request)
+        if let lastRequestedApply, isGainOnlyTransition(from: lastRequestedApply, to: request) {
+            scheduleGainApply(makeGainRequest(from: request))
+        } else {
+            scheduleApply(request)
+        }
+        lastRequestedApply = request
     }
 
     private func updateStatus(with snapshot: MHRadioStatusSnapshot) {
@@ -256,6 +280,26 @@ final class RadioControlViewModel: ObservableObject {
         }
     }
 
+    private func scheduleGainApply(_ request: RadioGainRequest) {
+        applySequence += 1
+        let sequence = applySequence
+        let worker = self.worker
+
+        pendingApplyTask?.cancel()
+        pendingApplyTask = Task { [weak self, worker] in
+            try? await Task.sleep(for: .milliseconds(20))
+            guard !Task.isCancelled else { return }
+
+            let snapshot = await worker.applyGainControls(request)
+            await MainActor.run {
+                guard let self else { return }
+                guard self.applySequence == sequence else { return }
+                self.pendingApplyTask = nil
+                self.updateStatus(with: snapshot)
+            }
+        }
+    }
+
     private func performOperation(_ operation: @escaping @Sendable (RadioEngineWorker) async -> MHRadioStatusSnapshot) {
         let worker = self.worker
         Task { [weak self, worker] in
@@ -278,6 +322,26 @@ final class RadioControlViewModel: ObservableObject {
             mode: bandSession.mode.rawValue,
             rxFilterHz: bandSession.rxFilterHz
         )
+    }
+
+    private func makeGainRequest(from request: RadioApplyRequest) -> RadioGainRequest {
+        RadioGainRequest(
+            ampEnabled: request.ampEnabled,
+            lnaGain: request.lnaGain,
+            vgaGain: request.vgaGain,
+            txVGAGain: request.txVGAGain
+        )
+    }
+
+    private func isGainOnlyTransition(from previous: RadioApplyRequest, to next: RadioApplyRequest) -> Bool {
+        previous.frequencyHz == next.frequencyHz &&
+        previous.sampleRate == next.sampleRate &&
+        previous.mode == next.mode &&
+        abs(previous.rxFilterHz - next.rxFilterHz) < 0.5 &&
+        (previous.ampEnabled != next.ampEnabled ||
+         previous.lnaGain != next.lnaGain ||
+         previous.vgaGain != next.vgaGain ||
+         previous.txVGAGain != next.txVGAGain)
     }
 
     private func resolvedSelectedSerial(from selectedSerial: String?) -> String? {

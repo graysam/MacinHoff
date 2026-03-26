@@ -188,6 +188,18 @@ static MHRadioStatusSnapshot *statusSnapshotFromStatus(const StatusSnapshot &sta
     return statusSnapshotFromStatus(self.manager->stopRX());
 }
 
+- (MHRadioStatusSnapshot *)applyAmpEnabled:(BOOL)ampEnabled
+                                   lnaGain:(NSInteger)lnaGain
+                                   vgaGain:(NSInteger)vgaGain
+                                 txVGAGain:(NSInteger)txVGAGain {
+    return statusSnapshotFromStatus(self.manager->applyGainControls(
+        ampEnabled,
+        static_cast<int>(lnaGain),
+        static_cast<int>(vgaGain),
+        static_cast<int>(txVGAGain)
+    ));
+}
+
 - (MHRadioStatusSnapshot *)applyFrequencyHz:(uint64_t)frequencyHz
                                  sampleRate:(double)sampleRate
                                  ampEnabled:(BOOL)ampEnabled
