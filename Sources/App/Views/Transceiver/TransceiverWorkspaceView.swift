@@ -26,8 +26,7 @@ struct TransceiverWorkspaceView: View {
                         centerFrequencyHz: session.frequencyHz,
                         spanHz: session.visibleSpanHz,
                         spectrumBins: radioModel.status.spectrumBins,
-                        palette: appModel.globalSettings.waterfallPalette,
-                        resolutionMultiplier: appModel.globalSettings.waterfallResolutionMultiplier
+                        palette: appModel.globalSettings.waterfallPalette
                     ) { requestedFrequency in
                         appModel.tuneSelectedBand(to: requestedFrequency)
                     } onPanRequest: { deltaHz in

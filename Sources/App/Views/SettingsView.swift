@@ -12,10 +12,6 @@ struct SettingsView: View {
                     }
                 }
 
-                Stepper(value: appModel.bindingForGlobal(\.waterfallResolutionMultiplier), in: 8...64, step: 8) {
-                    Text("Waterfall Horizontal Resolution: \(appModel.globalSettings.waterfallResolutionMultiplier)x")
-                }
-
                 Text("The classic SDR palette is black to blue to green to yellow to red to white.")
                     .foregroundStyle(.secondary)
             }

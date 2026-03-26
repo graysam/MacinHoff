@@ -84,6 +84,16 @@ struct SidebarView: View {
                     }
                     .buttonStyle(.borderless)
                 }
+
+                StatusCard(title: "Band Layout", accent: .blue) {
+                    Text("\(appModel.visibleBandDefinitions.count) visible tabs")
+                        .font(.headline)
+                    Text("Band visibility and waterfall appearance live in the standard macOS settings window.")
+                        .foregroundStyle(.secondary)
+                    SettingsLink {
+                        Text("Open Settings")
+                    }
+                }
             }
             .padding(20)
         }
