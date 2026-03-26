@@ -208,6 +208,7 @@ struct GlobalRadioSettings: Codable, Hashable {
     var audioOutputName: String
     var selectedDeviceSerial: String?
     var waterfallPalette: WaterfallPalette
+    var waterfallResolutionMultiplier: Int
 
     init(
         sampleRate: Double,
@@ -219,7 +220,8 @@ struct GlobalRadioSettings: Codable, Hashable {
         audioInputName: String,
         audioOutputName: String,
         selectedDeviceSerial: String?,
-        waterfallPalette: WaterfallPalette
+        waterfallPalette: WaterfallPalette,
+        waterfallResolutionMultiplier: Int
     ) {
         self.sampleRate = sampleRate
         self.snapStepHz = snapStepHz
@@ -231,6 +233,7 @@ struct GlobalRadioSettings: Codable, Hashable {
         self.audioOutputName = audioOutputName
         self.selectedDeviceSerial = selectedDeviceSerial
         self.waterfallPalette = waterfallPalette
+        self.waterfallResolutionMultiplier = waterfallResolutionMultiplier
     }
 
     static let `default` = GlobalRadioSettings(
@@ -243,7 +246,8 @@ struct GlobalRadioSettings: Codable, Hashable {
         audioInputName: "System Default",
         audioOutputName: "System Default",
         selectedDeviceSerial: nil,
-        waterfallPalette: .classic
+        waterfallPalette: .classic,
+        waterfallResolutionMultiplier: 16
     )
 
     enum CodingKeys: String, CodingKey {
@@ -257,6 +261,7 @@ struct GlobalRadioSettings: Codable, Hashable {
         case audioOutputName
         case selectedDeviceSerial
         case waterfallPalette
+        case waterfallResolutionMultiplier
     }
 
     init(from decoder: Decoder) throws {
@@ -271,6 +276,7 @@ struct GlobalRadioSettings: Codable, Hashable {
         audioOutputName = try container.decodeIfPresent(String.self, forKey: .audioOutputName) ?? Self.default.audioOutputName
         selectedDeviceSerial = try container.decodeIfPresent(String.self, forKey: .selectedDeviceSerial)
         waterfallPalette = try container.decodeIfPresent(WaterfallPalette.self, forKey: .waterfallPalette) ?? .classic
+        waterfallResolutionMultiplier = min(max(try container.decodeIfPresent(Int.self, forKey: .waterfallResolutionMultiplier) ?? Self.default.waterfallResolutionMultiplier, 8), 64)
     }
 }
 

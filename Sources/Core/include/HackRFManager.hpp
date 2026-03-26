@@ -78,7 +78,9 @@ private:
                                      int txVGAGain,
                                      const std::string& demodMode,
                                      double rxFilterHz,
-                                     bool resumeRX);
+                                     bool resumeRX,
+                                     bool restartStreamingForReconfigure,
+                                     bool forceHardwareSync);
 
     Impl* impl_ = nullptr;
 };

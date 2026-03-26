@@ -6,6 +6,7 @@ struct SpectrumWaterfallView: NSViewRepresentable {
     var spanHz: Double
     var spectrumBins: [Double]
     var palette: WaterfallPalette
+    var resolutionMultiplier: Int
     var onTuneRequest: (Double) -> Void
     var onPanRequest: (Double) -> Void
     var onZoomRequest: (Double) -> Void
@@ -30,6 +31,7 @@ struct SpectrumWaterfallView: NSViewRepresentable {
         nsView.centerFrequencyHz = centerFrequencyHz
         nsView.spanHz = spanHz
         nsView.palette = palette
+        nsView.resolutionMultiplier = resolutionMultiplier
         nsView.updateSpectrumBins(spectrumBins)
         context.coordinator.onTuneRequest = onTuneRequest
         context.coordinator.onPanRequest = onPanRequest
@@ -70,14 +72,15 @@ final class SpectrumWaterfallNSView: NSView {
     var centerFrequencyHz: Double = 14_200_000
     var spanHz: Double = 10_000_000
     var palette: WaterfallPalette = .classic
+    var resolutionMultiplier: Int = 16
     var onTuneRequest: ((Double) -> Void)?
     var onPanRequest: ((Double) -> Void)?
     var onZoomRequest: ((Double) -> Void)?
 
     private let scaleHeight: CGFloat = 52
     private let separatorHeight: CGFloat = 1
-    private var currentSpectrum: [CGFloat] = Array(repeating: 0.12, count: 128)
-    private var waterfallRows: [[CGFloat]] = Array(repeating: Array(repeating: 0.12, count: 128), count: 120)
+    private var currentSpectrum: [CGFloat] = Array(repeating: 0.12, count: 2_048)
+    private var waterfallRows: [[CGFloat]] = Array(repeating: Array(repeating: 0.12, count: 2_048), count: 120)
     private var dragOriginX: CGFloat?
 
     override init(frame frameRect: NSRect) {
@@ -117,7 +120,8 @@ final class SpectrumWaterfallNSView: NSView {
             return
         }
 
-        let normalized = bins.map { CGFloat(max(0, min(1, $0))) }
+        let baseSpectrum = bins.map { CGFloat(max(0, min(1, $0))) }
+        let normalized = resampledSpectrum(from: baseSpectrum, multiplier: resolutionMultiplier)
         if normalized.count != currentSpectrum.count {
             currentSpectrum = normalized
             waterfallRows = Array(repeating: normalized, count: 120)
@@ -136,6 +140,22 @@ final class SpectrumWaterfallNSView: NSView {
         }
 
         needsDisplay = true
+    }
+
+    private func resampledSpectrum(from source: [CGFloat], multiplier: Int) -> [CGFloat] {
+        guard source.count > 1 else { return source }
+
+        let clampedMultiplier = min(max(multiplier, 8), 64)
+        let targetCount = source.count * clampedMultiplier
+        guard targetCount > source.count else { return source }
+
+        return (0..<targetCount).map { index in
+            let position = CGFloat(index) * CGFloat(source.count - 1) / CGFloat(targetCount - 1)
+            let lowerIndex = Int(position.rounded(.down))
+            let upperIndex = min(lowerIndex + 1, source.count - 1)
+            let fraction = position - CGFloat(lowerIndex)
+            return source[lowerIndex] + (source[upperIndex] - source[lowerIndex]) * fraction
+        }
     }
 
     override func mouseDown(with event: NSEvent) {
