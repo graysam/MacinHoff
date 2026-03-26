@@ -1,0 +1,494 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0AE35EBC7B9A6D4822DD2E15 /* BandProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227818B8617F5ADC6A93547F /* BandProfileEditorView.swift */; };
+		121F95F8A8177B06FE85FB07 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6AB2F40CE6C01CCDE0448A /* PersistenceController.swift */; };
+		14F3DF1960F6EC351842E898 /* VFOReadoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFA061BDCD4C2AA9220D33D /* VFOReadoutView.swift */; };
+		218E7A4A373E2E180992AB09 /* RadioControlViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2B0056E4D4923E617B3E73 /* RadioControlViewModel.swift */; };
+		24337A340B65E9159B9C49F8 /* TinkerHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D40A9C5699E81B5986FE47D /* TinkerHomeView.swift */; };
+		3D6732BDE0A1B0E825A55F13 /* MacinHoffApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F3A7519137B1DF8C322884 /* MacinHoffApp.swift */; };
+		457150DC79FD3300288C1053 /* HackRFManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0EC00F64ABDBD58CCBA1B182 /* HackRFManager.cpp */; };
+		4D8EE12BF11C2665F267F70B /* WaterfallWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1912B421587E3031EDC9F8C6 /* WaterfallWindowView.swift */; };
+		5C381AEE0752FFB087FE3DBB /* BandControlSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE80BD54F3B0FC957B34B5F7 /* BandControlSection.swift */; };
+		69CFCBA24F5DF266AE624C8D /* BandTabsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BCCAF722FE088B219E3271 /* BandTabsView.swift */; };
+		6A4BA21A033CCF19B20458D0 /* AudioDeviceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF621129DAF49CED169FBB9 /* AudioDeviceService.swift */; };
+		761056855B05DEDB840B316A /* FrequencyFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 195167F124F55D384FF9D3C4 /* FrequencyFormatting.swift */; };
+		9C64287FA3EF95EFB1A0496B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE432A9FFA2C59DB2DE2DC29 /* SettingsView.swift */; };
+		A0BE16EC268432EC22D2B74E /* SegmentedLevelMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EFA8AD947EE4C3FA96206B /* SegmentedLevelMeterView.swift */; };
+		A5354695024FB88A05D51A0D /* StatusCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14654FB5E336EE7E1EE62CD2 /* StatusCard.swift */; };
+		BBA00E9F9669064C2EBE5BC9 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37812C1DB95813A1B4EB609F /* AppViewModel.swift */; };
+		C178D49E3059FAADF5F83FA0 /* TransceiverWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14C6E54D038C0E96E3E6BBD /* TransceiverWorkspaceView.swift */; };
+		C6C3072693B25CD7BC41E8DE /* AppModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A20F990299F080AE701FF24 /* AppModels.swift */; };
+		CE4217A2FB72FCCA9DBB7B3E /* RadioEngineBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46E304F80120D354BC6BC481 /* RadioEngineBridge.mm */; };
+		DAE9A3C8E52DF8D22B78DF55 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A292D5A25179B54D1C5D871 /* SidebarView.swift */; };
+		E5A85FBA0F7CA7BD3EF9D418 /* SpectrumWaterfallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FCC591C3463BD675EB75721 /* SpectrumWaterfallView.swift */; };
+		EE24FF3C6E012644907AA898 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8659457026614C62E12C5D15 /* RootView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0EC00F64ABDBD58CCBA1B182 /* HackRFManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HackRFManager.cpp; sourceTree = "<group>"; };
+		14654FB5E336EE7E1EE62CD2 /* StatusCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusCard.swift; sourceTree = "<group>"; };
+		1912B421587E3031EDC9F8C6 /* WaterfallWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterfallWindowView.swift; sourceTree = "<group>"; };
+		195167F124F55D384FF9D3C4 /* FrequencyFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyFormatting.swift; sourceTree = "<group>"; };
+		226E73F37FD956283F0D29F0 /* RadioEngineBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RadioEngineBridge.h; sourceTree = "<group>"; };
+		227818B8617F5ADC6A93547F /* BandProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandProfileEditorView.swift; sourceTree = "<group>"; };
+		2A292D5A25179B54D1C5D871 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		37812C1DB95813A1B4EB609F /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		46E304F80120D354BC6BC481 /* RadioEngineBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RadioEngineBridge.mm; sourceTree = "<group>"; };
+		481523A9883C6EC508851A2A /* MacinHoff-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MacinHoff-Bridging-Header.h"; sourceTree = "<group>"; };
+		4AE11CD381F3901F63783494 /* HackRFManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HackRFManager.hpp; sourceTree = "<group>"; };
+		5BAF4BF55F22D43795A4A88F /* MacinHoff.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacinHoff.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D6AB2F40CE6C01CCDE0448A /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		77BCCAF722FE088B219E3271 /* BandTabsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandTabsView.swift; sourceTree = "<group>"; };
+		7A20F990299F080AE701FF24 /* AppModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModels.swift; sourceTree = "<group>"; };
+		7FCC591C3463BD675EB75721 /* SpectrumWaterfallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpectrumWaterfallView.swift; sourceTree = "<group>"; };
+		8659457026614C62E12C5D15 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		97F3A7519137B1DF8C322884 /* MacinHoffApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacinHoffApp.swift; sourceTree = "<group>"; };
+		9D40A9C5699E81B5986FE47D /* TinkerHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinkerHomeView.swift; sourceTree = "<group>"; };
+		ADF621129DAF49CED169FBB9 /* AudioDeviceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceService.swift; sourceTree = "<group>"; };
+		AE80BD54F3B0FC957B34B5F7 /* BandControlSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandControlSection.swift; sourceTree = "<group>"; };
+		AF2B0056E4D4923E617B3E73 /* RadioControlViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioControlViewModel.swift; sourceTree = "<group>"; };
+		C14C6E54D038C0E96E3E6BBD /* TransceiverWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransceiverWorkspaceView.swift; sourceTree = "<group>"; };
+		D8EFA8AD947EE4C3FA96206B /* SegmentedLevelMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedLevelMeterView.swift; sourceTree = "<group>"; };
+		EBFA061BDCD4C2AA9220D33D /* VFOReadoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VFOReadoutView.swift; sourceTree = "<group>"; };
+		FE432A9FFA2C59DB2DE2DC29 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0E601F01582085C894EDD3D9 /* Transceiver */ = {
+			isa = PBXGroup;
+			children = (
+				227818B8617F5ADC6A93547F /* BandProfileEditorView.swift */,
+				C14C6E54D038C0E96E3E6BBD /* TransceiverWorkspaceView.swift */,
+				1912B421587E3031EDC9F8C6 /* WaterfallWindowView.swift */,
+			);
+			path = Transceiver;
+			sourceTree = "<group>";
+		};
+		17193755591A80C0436A6CCE /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				DD88FBB4058CA89C0E17916C /* include */,
+				7D5B0A33B07AE7453A8BF71A /* src */,
+			);
+			name = Core;
+			path = Sources/Core;
+			sourceTree = "<group>";
+		};
+		1D138534CB6D5913F7418876 = {
+			isa = PBXGroup;
+			children = (
+				8EEE5C6AFC363AC6B1A11B5E /* App */,
+				C70A02CFB455FA0362303E46 /* Bridge */,
+				17193755591A80C0436A6CCE /* Core */,
+				54FEB2A8D9B75E2A186F236C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		31EA056551006300EE58246F /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				AE80BD54F3B0FC957B34B5F7 /* BandControlSection.swift */,
+				77BCCAF722FE088B219E3271 /* BandTabsView.swift */,
+				D8EFA8AD947EE4C3FA96206B /* SegmentedLevelMeterView.swift */,
+				7FCC591C3463BD675EB75721 /* SpectrumWaterfallView.swift */,
+				14654FB5E336EE7E1EE62CD2 /* StatusCard.swift */,
+				EBFA061BDCD4C2AA9220D33D /* VFOReadoutView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		4547A582903C72449101F22D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				7A20F990299F080AE701FF24 /* AppModels.swift */,
+				ADF621129DAF49CED169FBB9 /* AudioDeviceService.swift */,
+				195167F124F55D384FF9D3C4 /* FrequencyFormatting.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		53863427EAF0D26D3AE80423 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				37812C1DB95813A1B4EB609F /* AppViewModel.swift */,
+				5D6AB2F40CE6C01CCDE0448A /* PersistenceController.swift */,
+				AF2B0056E4D4923E617B3E73 /* RadioControlViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		54FEB2A8D9B75E2A186F236C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5BAF4BF55F22D43795A4A88F /* MacinHoff.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7D5B0A33B07AE7453A8BF71A /* src */ = {
+			isa = PBXGroup;
+			children = (
+				0EC00F64ABDBD58CCBA1B182 /* HackRFManager.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		8EEE5C6AFC363AC6B1A11B5E /* App */ = {
+			isa = PBXGroup;
+			children = (
+				97F3A7519137B1DF8C322884 /* MacinHoffApp.swift */,
+				4547A582903C72449101F22D /* Models */,
+				53863427EAF0D26D3AE80423 /* ViewModels */,
+				D99EC79154079ADE7BB077C1 /* Views */,
+			);
+			name = App;
+			path = Sources/App;
+			sourceTree = "<group>";
+		};
+		A1F880ACCB97C2A635282FA5 /* Tinker */ = {
+			isa = PBXGroup;
+			children = (
+				9D40A9C5699E81B5986FE47D /* TinkerHomeView.swift */,
+			);
+			path = Tinker;
+			sourceTree = "<group>";
+		};
+		C70A02CFB455FA0362303E46 /* Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				481523A9883C6EC508851A2A /* MacinHoff-Bridging-Header.h */,
+				226E73F37FD956283F0D29F0 /* RadioEngineBridge.h */,
+				46E304F80120D354BC6BC481 /* RadioEngineBridge.mm */,
+			);
+			name = Bridge;
+			path = Sources/Bridge;
+			sourceTree = "<group>";
+		};
+		D99EC79154079ADE7BB077C1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8659457026614C62E12C5D15 /* RootView.swift */,
+				FE432A9FFA2C59DB2DE2DC29 /* SettingsView.swift */,
+				2A292D5A25179B54D1C5D871 /* SidebarView.swift */,
+				31EA056551006300EE58246F /* Components */,
+				A1F880ACCB97C2A635282FA5 /* Tinker */,
+				0E601F01582085C894EDD3D9 /* Transceiver */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DD88FBB4058CA89C0E17916C /* include */ = {
+			isa = PBXGroup;
+			children = (
+				4AE11CD381F3901F63783494 /* HackRFManager.hpp */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B575082562F5074732D65B9F /* MacinHoff */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B213E45373809EC9E642B05 /* Build configuration list for PBXNativeTarget "MacinHoff" */;
+			buildPhases = (
+				3B9B63E1D74A488A6E65216D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MacinHoff;
+			packageProductDependencies = (
+			);
+			productName = MacinHoff;
+			productReference = 5BAF4BF55F22D43795A4A88F /* MacinHoff.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8E696445CEF2B7DD235BE321 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					B575082562F5074732D65B9F = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 25AD1B9608A43A7BFD619155 /* Build configuration list for PBXProject "MacinHoff" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1D138534CB6D5913F7418876;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 54FEB2A8D9B75E2A186F236C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B575082562F5074732D65B9F /* MacinHoff */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3B9B63E1D74A488A6E65216D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6C3072693B25CD7BC41E8DE /* AppModels.swift in Sources */,
+				BBA00E9F9669064C2EBE5BC9 /* AppViewModel.swift in Sources */,
+				6A4BA21A033CCF19B20458D0 /* AudioDeviceService.swift in Sources */,
+				5C381AEE0752FFB087FE3DBB /* BandControlSection.swift in Sources */,
+				0AE35EBC7B9A6D4822DD2E15 /* BandProfileEditorView.swift in Sources */,
+				69CFCBA24F5DF266AE624C8D /* BandTabsView.swift in Sources */,
+				761056855B05DEDB840B316A /* FrequencyFormatting.swift in Sources */,
+				457150DC79FD3300288C1053 /* HackRFManager.cpp in Sources */,
+				3D6732BDE0A1B0E825A55F13 /* MacinHoffApp.swift in Sources */,
+				121F95F8A8177B06FE85FB07 /* PersistenceController.swift in Sources */,
+				218E7A4A373E2E180992AB09 /* RadioControlViewModel.swift in Sources */,
+				CE4217A2FB72FCCA9DBB7B3E /* RadioEngineBridge.mm in Sources */,
+				EE24FF3C6E012644907AA898 /* RootView.swift in Sources */,
+				A0BE16EC268432EC22D2B74E /* SegmentedLevelMeterView.swift in Sources */,
+				9C64287FA3EF95EFB1A0496B /* SettingsView.swift in Sources */,
+				DAE9A3C8E52DF8D22B78DF55 /* SidebarView.swift in Sources */,
+				E5A85FBA0F7CA7BD3EF9D418 /* SpectrumWaterfallView.swift in Sources */,
+				A5354695024FB88A05D51A0D /* StatusCard.swift in Sources */,
+				24337A340B65E9159B9C49F8 /* TinkerHomeView.swift in Sources */,
+				C178D49E3059FAADF5F83FA0 /* TransceiverWorkspaceView.swift in Sources */,
+				14F3DF1960F6EC351842E898 /* VFOReadoutView.swift in Sources */,
+				4D8EE12BF11C2665F267F70B /* WaterfallWindowView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		163AFD20DCC1147B19F75DD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MacinHoff;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHighResolutionCapable = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sam.MacinHoff;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		265DF667ACC9E27DC821653B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/Core/include",
+					/opt/homebrew/include,
+					/opt/homebrew/include/libhackrf,
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026";
+				LIBRARY_SEARCH_PATHS = (
+					/opt/homebrew/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-lhackrf",
+				);
+				PRODUCT_NAME = MacinHoff;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/Bridge/MacinHoff-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		77134B01F7E21F3F592D1269 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Sources/Core/include",
+					/opt/homebrew/include,
+					/opt/homebrew/include/libhackrf,
+				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026";
+				LIBRARY_SEARCH_PATHS = (
+					/opt/homebrew/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lhackrf",
+				);
+				PRODUCT_NAME = MacinHoff;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/Bridge/MacinHoff-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AFB94E6F7B204777062EF4D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = MacinHoff;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHighResolutionCapable = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sam.MacinHoff;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		25AD1B9608A43A7BFD619155 /* Build configuration list for PBXProject "MacinHoff" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				77134B01F7E21F3F592D1269 /* Debug */,
+				265DF667ACC9E27DC821653B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8B213E45373809EC9E642B05 /* Build configuration list for PBXNativeTarget "MacinHoff" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				163AFD20DCC1147B19F75DD4 /* Debug */,
+				AFB94E6F7B204777062EF4D3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8E696445CEF2B7DD235BE321 /* Project object */;
+}
