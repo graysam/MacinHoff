@@ -37,6 +37,12 @@ struct StatusSnapshot {
     int txVGAGain = 0;
     double sampleRate = 10'000'000.0;
     std::uint64_t tunedFrequencyHz = 14'200'000;
+    std::string demodMode = "USB";
+    double rxFilterHz = 2'700.0;
+    float rxRFLevel = 0.0f;
+    float rxAudioLevel = 0.0f;
+    float txRFLevel = 0.0f;
+    float txAudioLevel = 0.0f;
 };
 
 class HackRFManager {
@@ -55,7 +61,10 @@ public:
                                bool ampEnabled,
                                int lnaGain,
                                int vgaGain,
-                               int txVGAGain);
+                               int txVGAGain,
+                               const std::string& demodMode,
+                               double rxFilterHz);
+    std::vector<float> consumeRXAudio(std::size_t maxSamples);
 
 private:
     struct Impl;
@@ -66,7 +75,9 @@ private:
                                      bool ampEnabled,
                                      int lnaGain,
                                      int vgaGain,
-                                     int txVGAGain);
+                                     int txVGAGain,
+                                     const std::string& demodMode,
+                                     double rxFilterHz);
 
     Impl* impl_ = nullptr;
 };

@@ -15,8 +15,35 @@ enum AudioDeviceScope {
     }
 }
 
+struct AudioDeviceDescriptor: Identifiable, Hashable {
+    let id: AudioDeviceID
+    let name: String
+    let uid: String
+}
+
 enum AudioDeviceService {
     static func deviceNames(for scope: AudioDeviceScope) -> [String] {
+        devices(for: scope).map(\.name)
+    }
+
+    static func devices(for scope: AudioDeviceScope) -> [AudioDeviceDescriptor] {
+        allDeviceIDs()
+            .filter { supports(scope: scope, deviceID: $0) }
+            .compactMap { deviceID in
+                guard let name = name(for: deviceID), let uid = uid(for: deviceID) else {
+                    return nil
+                }
+                return AudioDeviceDescriptor(id: deviceID, name: name, uid: uid)
+            }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    static func outputDeviceUID(named name: String) -> String? {
+        guard name != "System Default" else { return nil }
+        return devices(for: .output).first(where: { $0.name == name })?.uid
+    }
+
+    private static func allDeviceIDs() -> [AudioDeviceID] {
         var address = AudioObjectPropertyAddress(
             mSelector: kAudioHardwarePropertyDevices,
             mScope: kAudioObjectPropertyScopeGlobal,
@@ -36,9 +63,6 @@ enum AudioDeviceService {
         }
 
         return deviceIDs
-            .filter { supports(scope: scope, deviceID: $0) }
-            .compactMap(name(for:))
-            .sorted()
     }
 
     private static func supports(scope: AudioDeviceScope, deviceID: AudioDeviceID) -> Bool {
@@ -84,5 +108,21 @@ enum AudioDeviceService {
         }
 
         return name?.takeUnretainedValue() as String?
+    }
+
+    private static func uid(for deviceID: AudioDeviceID) -> String? {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyDeviceUID,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var uid: Unmanaged<CFString>?
+        var dataSize = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+
+        guard AudioObjectGetPropertyData(deviceID, &address, 0, nil, &dataSize, &uid) == noErr else {
+            return nil
+        }
+
+        return uid?.takeUnretainedValue() as String?
     }
 }

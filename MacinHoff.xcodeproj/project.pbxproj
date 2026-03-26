@@ -22,6 +22,7 @@
 		9C64287FA3EF95EFB1A0496B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE432A9FFA2C59DB2DE2DC29 /* SettingsView.swift */; };
 		A0BE16EC268432EC22D2B74E /* SegmentedLevelMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EFA8AD947EE4C3FA96206B /* SegmentedLevelMeterView.swift */; };
 		A5354695024FB88A05D51A0D /* StatusCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14654FB5E336EE7E1EE62CD2 /* StatusCard.swift */; };
+		ACD5582209FAADFB2322646A /* AudioOutputService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D461F7A34AC813BA3A5737 /* AudioOutputService.swift */; };
 		BBA00E9F9669064C2EBE5BC9 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37812C1DB95813A1B4EB609F /* AppViewModel.swift */; };
 		C178D49E3059FAADF5F83FA0 /* TransceiverWorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14C6E54D038C0E96E3E6BBD /* TransceiverWorkspaceView.swift */; };
 		C6C3072693B25CD7BC41E8DE /* AppModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A20F990299F080AE701FF24 /* AppModels.swift */; };
@@ -57,6 +58,7 @@
 		C14C6E54D038C0E96E3E6BBD /* TransceiverWorkspaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransceiverWorkspaceView.swift; sourceTree = "<group>"; };
 		D8EFA8AD947EE4C3FA96206B /* SegmentedLevelMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedLevelMeterView.swift; sourceTree = "<group>"; };
 		EBFA061BDCD4C2AA9220D33D /* VFOReadoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VFOReadoutView.swift; sourceTree = "<group>"; };
+		F1D461F7A34AC813BA3A5737 /* AudioOutputService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioOutputService.swift; sourceTree = "<group>"; };
 		FE432A9FFA2C59DB2DE2DC29 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,6 +111,7 @@
 			children = (
 				7A20F990299F080AE701FF24 /* AppModels.swift */,
 				ADF621129DAF49CED169FBB9 /* AudioDeviceService.swift */,
+				F1D461F7A34AC813BA3A5737 /* AudioOutputService.swift */,
 				195167F124F55D384FF9D3C4 /* FrequencyFormatting.swift */,
 			);
 			path = Models;
@@ -253,6 +256,7 @@
 				C6C3072693B25CD7BC41E8DE /* AppModels.swift in Sources */,
 				BBA00E9F9669064C2EBE5BC9 /* AppViewModel.swift in Sources */,
 				6A4BA21A033CCF19B20458D0 /* AudioDeviceService.swift in Sources */,
+				ACD5582209FAADFB2322646A /* AudioOutputService.swift in Sources */,
 				5C381AEE0752FFB087FE3DBB /* BandControlSection.swift in Sources */,
 				0AE35EBC7B9A6D4822DD2E15 /* BandProfileEditorView.swift in Sources */,
 				69CFCBA24F5DF266AE624C8D /* BandTabsView.swift in Sources */,

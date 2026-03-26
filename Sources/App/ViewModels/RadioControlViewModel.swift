@@ -4,15 +4,25 @@ import Foundation
 final class RadioControlViewModel: ObservableObject {
     @Published private(set) var status = RadioDeviceStatus.placeholder
 
-    private let bridge = MHRadioEngineBridge()
+    private let bridge: MHRadioEngineBridge
+    private let audioOutput: AudioOutputService
     private var pollingTask: Task<Void, Never>?
+    private var selectedAudioOutputName = "System Default"
 
-    deinit {
-        pollingTask?.cancel()
+    init() {
+        let bridge = MHRadioEngineBridge()
+        self.bridge = bridge
+        self.audioOutput = AudioOutputService { maxSamples in
+            let data = bridge.consumeRXAudioSamples(maxSamples)
+            guard !data.isEmpty else { return [] }
+            return data.withUnsafeBytes { rawBuffer in
+                Array(rawBuffer.bindMemory(to: Float.self))
+            }
+        }
     }
 
     func refresh() {
-        status = map(snapshot: bridge.refreshStatus())
+        updateStatus(with: bridge.refreshStatus())
     }
 
     func startPolling() {
@@ -20,46 +30,55 @@ final class RadioControlViewModel: ObservableObject {
         pollingTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
-                self.status = self.map(snapshot: self.bridge.currentStatus())
+                self.updateStatus(with: self.bridge.currentStatus())
                 try? await Task.sleep(for: .milliseconds(120))
             }
         }
     }
 
     func connect(selectedSerial: String?) {
-        status = map(snapshot: bridge.connect(toSerialNumber: selectedSerial))
+        updateStatus(with: bridge.connect(toSerialNumber: selectedSerial))
     }
 
     func disconnect() {
-        status = map(snapshot: bridge.disconnectDevice())
+        updateStatus(with: bridge.disconnectDevice())
     }
 
     func startRX() {
-        status = map(snapshot: bridge.startRX())
+        updateStatus(with: bridge.startRX())
     }
 
     func stopRX() {
-        status = map(snapshot: bridge.stopRX())
+        updateStatus(with: bridge.stopRX())
     }
 
     func apply(globalSettings: GlobalRadioSettings, bandSession: BandSessionState?) {
         guard let bandSession else { return }
-        status = map(
-            snapshot: bridge.applyFrequencyHz(
+        selectedAudioOutputName = globalSettings.audioOutputName
+        updateStatus(
+            with: bridge.applyFrequencyHz(
                 UInt64(max(0, bandSession.frequencyHz.rounded())),
                 sampleRate: globalSettings.sampleRate,
                 ampEnabled: globalSettings.ampEnabled,
                 lnaGain: Int(globalSettings.lnaGain.rounded()),
                 vgaGain: Int(globalSettings.vgaGain.rounded()),
-                txVGAGain: Int(globalSettings.txVGAGain.rounded())
+                txVGAGain: Int(globalSettings.txVGAGain.rounded()),
+                mode: bandSession.mode.rawValue,
+                rxFilterHz: bandSession.rxFilterHz
             )
+        )
+    }
+
+    private func updateStatus(with snapshot: MHRadioStatusSnapshot) {
+        status = map(snapshot: snapshot)
+        audioOutput.update(
+            shouldPlay: status.transportState == .receiving,
+            outputDeviceName: selectedAudioOutputName
         )
     }
 
     private func map(snapshot: MHRadioStatusSnapshot) -> RadioDeviceStatus {
         let spectrum = snapshot.spectrumBins.map(\.doubleValue)
-        let rxRFLevel = spectrum.max() ?? 0
-        let rxAudioLevel = min(1, (spectrum.reduce(0, +) / Double(max(spectrum.count, 1))) * 1.4)
 
         let devices = snapshot.devices.map {
             HackRFDevice(
@@ -96,10 +115,10 @@ final class RadioControlViewModel: ObservableObject {
             spectrumBins: spectrum,
             tunedFrequencyHz: Double(snapshot.tunedFrequencyHz),
             sampleRate: snapshot.sampleRate,
-            rxRFLevel: rxRFLevel,
-            rxAudioLevel: rxAudioLevel,
-            txRFLevel: state == .transmitting ? 0.15 : 0,
-            txAudioLevel: state == .transmitting ? 0.08 : 0
+            rxRFLevel: Double(snapshot.rxRFLevel),
+            rxAudioLevel: Double(snapshot.rxAudioLevel),
+            txRFLevel: Double(snapshot.txRFLevel),
+            txAudioLevel: Double(snapshot.txAudioLevel)
         )
     }
 }

@@ -5,6 +5,7 @@
 #include <cmath>
 #include <complex>
 #include <cstring>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -18,6 +19,30 @@ namespace {
 
 std::string safeCString(const char* value) {
     return value != nullptr ? std::string(value) : std::string();
+}
+
+enum class DemodMode {
+    usb,
+    lsb,
+    cw,
+    am,
+    nfm,
+};
+
+DemodMode demodModeFromString(const std::string& modeName) {
+    if (modeName == "LSB") {
+        return DemodMode::lsb;
+    }
+    if (modeName == "CW") {
+        return DemodMode::cw;
+    }
+    if (modeName == "AM") {
+        return DemodMode::am;
+    }
+    if (modeName == "NFM") {
+        return DemodMode::nfm;
+    }
+    return DemodMode::usb;
 }
 
 std::string formatUSBAPIVersion(uint16_t version) {
@@ -47,12 +72,20 @@ void expectSuccess(int result, const char* operation) {
 struct HackRFManager::Impl {
     static constexpr std::size_t kSpectrumBinCount = 128;
     static constexpr std::size_t kFFTSize = 256;
+    static constexpr double kAudioRate = 48'000.0;
+    static constexpr std::size_t kMaxBufferedAudioSamples = 48'000 * 4;
 
     std::mutex mutex;
     hackrf_device* device = nullptr;
     bool libraryInitialized = false;
     StatusSnapshot status;
     std::array<float, kFFTSize> hannWindow{};
+    std::deque<float> audioSamples;
+    std::complex<float> previousIQ{0.0f, 0.0f};
+    float amDCLevel = 0.0f;
+    float audioFilterState = 0.0f;
+    double cwBFOPhase = 0.0;
+    double resampleAccumulator = 0.0;
 
     Impl() {
         const int result = hackrf_init();
@@ -79,6 +112,19 @@ struct HackRFManager::Impl {
         }
     }
 
+    void resetDSPState() {
+        audioSamples.clear();
+        previousIQ = std::complex<float>(0.0f, 0.0f);
+        amDCLevel = 0.0f;
+        audioFilterState = 0.0f;
+        cwBFOPhase = 0.0;
+        resampleAccumulator = 0.0;
+        status.rxRFLevel = 0.0f;
+        status.rxAudioLevel = 0.0f;
+        status.txRFLevel = 0.0f;
+        status.txAudioLevel = 0.0f;
+    }
+
     void closeDevice() {
         if (device != nullptr) {
             if (hackrf_is_streaming(device) == HACKRF_TRUE) {
@@ -91,6 +137,7 @@ struct HackRFManager::Impl {
         status.transportState = TransportState::idle;
         status.connectionSummary = "No HackRF connected";
         std::fill(status.spectrumBins.begin(), status.spectrumBins.end(), 0.0f);
+        resetDSPState();
     }
 
     DeviceInfo readDeviceInfo(hackrf_device_list_t* list, int index) {
@@ -189,14 +236,55 @@ struct HackRFManager::Impl {
         return static_cast<Impl*>(transfer->rx_ctx)->handleRXTransfer(*transfer);
     }
 
+    float demodulatedAudio(const std::complex<float>& iq) {
+        switch (demodModeFromString(status.demodMode)) {
+            case DemodMode::am: {
+                const float magnitude = std::abs(iq);
+                const float dcAlpha = std::clamp(
+                    static_cast<float>((2.0 * M_PI * 20.0) / std::max(status.sampleRate, 1.0)),
+                    0.000001f,
+                    0.05f
+                );
+                amDCLevel += dcAlpha * (magnitude - amDCLevel);
+                return (magnitude - amDCLevel) * 8.0f;
+            }
+            case DemodMode::nfm: {
+                float sample = 0.0f;
+                if (std::norm(previousIQ) > 0.0f) {
+                    const auto delta = std::conj(previousIQ) * iq;
+                    sample = std::atan2(delta.imag(), delta.real()) * 2.8f;
+                }
+                previousIQ = iq;
+                return sample;
+            }
+            case DemodMode::cw: {
+                const float bfoHz = 700.0f;
+                const std::complex<float> oscillator(
+                    std::cos(static_cast<float>(cwBFOPhase)),
+                    std::sin(static_cast<float>(cwBFOPhase))
+                );
+                cwBFOPhase += (2.0 * M_PI * bfoHz) / std::max(status.sampleRate, 1.0);
+                if (cwBFOPhase > 2.0 * M_PI) {
+                    cwBFOPhase -= 2.0 * M_PI;
+                }
+                return (iq * oscillator).real() * 3.0f;
+            }
+            case DemodMode::lsb:
+                return (iq.real() + iq.imag()) * 1.7f;
+            case DemodMode::usb:
+                return (iq.real() - iq.imag()) * 1.7f;
+        }
+    }
+
     int handleRXTransfer(const hackrf_transfer& transfer) {
-        const std::size_t availableSamples = std::min<std::size_t>(static_cast<std::size_t>(transfer.valid_length) / 2, kFFTSize);
-        if (availableSamples < kFFTSize / 2) {
+        const std::size_t sampleCount = static_cast<std::size_t>(transfer.valid_length) / 2;
+        const std::size_t spectrumSampleCount = std::min<std::size_t>(sampleCount, kFFTSize);
+        if (spectrumSampleCount < kFFTSize / 2) {
             return 0;
         }
 
         std::array<std::complex<float>, kFFTSize> samples{};
-        for (std::size_t index = 0; index < availableSamples; ++index) {
+        for (std::size_t index = 0; index < spectrumSampleCount; ++index) {
             const float i = static_cast<float>(transfer.buffer[index * 2]) / 128.0f;
             const float q = static_cast<float>(transfer.buffer[index * 2 + 1]) / 128.0f;
             samples[index] = std::complex<float>(i * hannWindow[index], q * hannWindow[index]);
@@ -215,10 +303,56 @@ struct HackRFManager::Impl {
             bins[bin] = std::clamp((decibels + 70.0f) / 70.0f, 0.0f, 1.0f);
         }
 
+        const float filterHz = static_cast<float>(std::clamp(status.rxFilterHz, 300.0, 12'000.0));
+        const float filterAlpha = std::clamp(
+            static_cast<float>(1.0 - std::exp((-2.0 * M_PI * filterHz) / std::max(status.sampleRate, 1.0))),
+            0.000001f,
+            1.0f
+        );
+
+        std::vector<float> demodulatedChunk;
+        demodulatedChunk.reserve(static_cast<std::size_t>((sampleCount * kAudioRate) / std::max(status.sampleRate, 1.0)) + 8);
+
+        double rfPowerSum = 0.0;
+        double audioPowerSum = 0.0;
+        std::size_t audioSampleCount = 0;
+        const bool isCW = demodModeFromString(status.demodMode) == DemodMode::cw;
+
+        for (std::size_t index = 0; index < sampleCount; ++index) {
+            const auto iq = std::complex<float>(
+                static_cast<float>(transfer.buffer[index * 2]) / 128.0f,
+                static_cast<float>(transfer.buffer[index * 2 + 1]) / 128.0f
+            );
+            rfPowerSum += std::norm(iq);
+
+            const float demodulated = demodulatedAudio(iq);
+            audioFilterState += (isCW ? std::max(filterAlpha, 0.02f) : filterAlpha) * (demodulated - audioFilterState);
+
+            resampleAccumulator += kAudioRate;
+            if (resampleAccumulator >= status.sampleRate) {
+                resampleAccumulator -= status.sampleRate;
+                const float audioSample = std::clamp(audioFilterState, -1.0f, 1.0f);
+                demodulatedChunk.push_back(audioSample);
+                audioPowerSum += static_cast<double>(audioSample) * static_cast<double>(audioSample);
+                audioSampleCount += 1;
+            }
+        }
+
         std::lock_guard lock(mutex);
         status.spectrumBins = std::move(bins);
         status.transportState = TransportState::receiving;
         status.connectionSummary = "Receiving on " + status.connectedSerialNumber.value_or("HackRF");
+        status.rxRFLevel = std::clamp(std::sqrt(rfPowerSum / std::max<std::size_t>(sampleCount, 1)) * 0.9, 0.0, 1.0);
+        status.rxAudioLevel = audioSampleCount > 0
+            ? std::clamp(std::sqrt(audioPowerSum / static_cast<double>(audioSampleCount)) * 2.6, 0.0, 1.0)
+            : 0.0f;
+
+        for (const float sample : demodulatedChunk) {
+            audioSamples.push_back(sample);
+        }
+        while (audioSamples.size() > kMaxBufferedAudioSamples) {
+            audioSamples.pop_front();
+        }
         return 0;
     }
 };
@@ -301,7 +435,9 @@ StatusSnapshot HackRFManager::connect(const std::optional<std::string>& serialNu
                              state.status.ampEnabled,
                              state.status.lnaGain,
                              state.status.vgaGain,
-                             state.status.txVGAGain);
+                             state.status.txVGAGain,
+                             state.status.demodMode,
+                             state.status.rxFilterHz);
 }
 
 StatusSnapshot HackRFManager::disconnect() {
@@ -366,6 +502,7 @@ StatusSnapshot HackRFManager::stopRX() {
     state.status.transportState = TransportState::idle;
     state.status.connectionSummary = "Connected to " + state.status.connectedSerialNumber.value_or("HackRF");
     std::fill(state.status.spectrumBins.begin(), state.status.spectrumBins.end(), 0.0f);
+    state.resetDSPState();
     return state.status;
 }
 
@@ -374,10 +511,12 @@ StatusSnapshot HackRFManager::applyTuning(std::uint64_t frequencyHz,
                                           bool ampEnabled,
                                           int lnaGain,
                                           int vgaGain,
-                                          int txVGAGain) {
+                                          int txVGAGain,
+                                          const std::string& demodMode,
+                                          double rxFilterHz) {
     auto& state = impl();
     std::lock_guard lock(state.mutex);
-    return applyTuningLocked(frequencyHz, sampleRate, ampEnabled, lnaGain, vgaGain, txVGAGain);
+    return applyTuningLocked(frequencyHz, sampleRate, ampEnabled, lnaGain, vgaGain, txVGAGain, demodMode, rxFilterHz);
 }
 
 StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
@@ -385,7 +524,9 @@ StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
                                                 bool ampEnabled,
                                                 int lnaGain,
                                                 int vgaGain,
-                                                int txVGAGain) {
+                                                int txVGAGain,
+                                                const std::string& demodMode,
+                                                double rxFilterHz) {
     auto& state = impl();
 
     state.status.tunedFrequencyHz = frequencyHz;
@@ -394,6 +535,8 @@ StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
     state.status.lnaGain = clampGain(lnaGain, 0, 40, 8);
     state.status.vgaGain = clampGain(vgaGain, 0, 62, 2);
     state.status.txVGAGain = clampGain(txVGAGain, 0, 47, 1);
+    state.status.demodMode = demodMode;
+    state.status.rxFilterHz = std::clamp(rxFilterHz, 300.0, 12'000.0);
 
     if (state.device == nullptr) {
         state.enumerateDevices();
@@ -425,6 +568,7 @@ StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
         expectSuccess(hackrf_set_lna_gain(state.device, state.status.lnaGain), "hackrf_set_lna_gain");
         expectSuccess(hackrf_set_vga_gain(state.device, state.status.vgaGain), "hackrf_set_vga_gain");
         expectSuccess(hackrf_set_txvga_gain(state.device, state.status.txVGAGain), "hackrf_set_txvga_gain");
+        state.resetDSPState();
 
         if (resumeRX) {
             expectSuccess(hackrf_start_rx(state.device, &Impl::rxCallback, &state), "hackrf_start_rx");
@@ -444,6 +588,22 @@ StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
         state.enumerateDevices();
     }
     return state.status;
+}
+
+std::vector<float> HackRFManager::consumeRXAudio(std::size_t maxSamples) {
+    auto& state = impl();
+    std::lock_guard lock(state.mutex);
+
+    const std::size_t sampleCount = std::min(maxSamples, state.audioSamples.size());
+    std::vector<float> samples;
+    samples.reserve(sampleCount);
+
+    for (std::size_t index = 0; index < sampleCount; ++index) {
+        samples.push_back(state.audioSamples.front());
+        state.audioSamples.pop_front();
+    }
+
+    return samples;
 }
 
 } // namespace macinhoff

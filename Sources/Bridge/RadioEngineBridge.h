@@ -44,6 +44,12 @@ typedef NS_ENUM(NSInteger, MHRadioTransportState) {
 @property (nonatomic, assign) NSInteger txVGAGain;
 @property (nonatomic, assign) double sampleRate;
 @property (nonatomic, assign) uint64_t tunedFrequencyHz;
+@property (nonatomic, copy) NSString *demodMode;
+@property (nonatomic, assign) double rxFilterHz;
+@property (nonatomic, assign) float rxRFLevel;
+@property (nonatomic, assign) float rxAudioLevel;
+@property (nonatomic, assign) float txRFLevel;
+@property (nonatomic, assign) float txAudioLevel;
 
 - (instancetype)initWithDevices:(NSArray<MHHackRFDeviceSnapshot *> *)devices
                   libraryVersion:(NSString *)libraryVersion
@@ -57,7 +63,13 @@ typedef NS_ENUM(NSInteger, MHRadioTransportState) {
                           vgaGain:(NSInteger)vgaGain
                         txVGAGain:(NSInteger)txVGAGain
                        sampleRate:(double)sampleRate
-                 tunedFrequencyHz:(uint64_t)tunedFrequencyHz NS_DESIGNATED_INITIALIZER;
+                 tunedFrequencyHz:(uint64_t)tunedFrequencyHz
+                        demodMode:(NSString *)demodMode
+                       rxFilterHz:(double)rxFilterHz
+                        rxRFLevel:(float)rxRFLevel
+                     rxAudioLevel:(float)rxAudioLevel
+                        txRFLevel:(float)txRFLevel
+                     txAudioLevel:(float)txAudioLevel NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -76,7 +88,10 @@ typedef NS_ENUM(NSInteger, MHRadioTransportState) {
                                  ampEnabled:(BOOL)ampEnabled
                                     lnaGain:(NSInteger)lnaGain
                                     vgaGain:(NSInteger)vgaGain
-                                  txVGAGain:(NSInteger)txVGAGain;
+                                  txVGAGain:(NSInteger)txVGAGain
+                                       mode:(NSString *)mode
+                                 rxFilterHz:(double)rxFilterHz;
+- (NSData *)consumeRXAudioSamples:(NSInteger)maxSamples;
 
 @end
 

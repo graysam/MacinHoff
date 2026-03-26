@@ -46,7 +46,13 @@ using macinhoff::TransportState;
                            vgaGain:(NSInteger)vgaGain
                         txVGAGain:(NSInteger)txVGAGain
                         sampleRate:(double)sampleRate
-                 tunedFrequencyHz:(uint64_t)tunedFrequencyHz {
+                 tunedFrequencyHz:(uint64_t)tunedFrequencyHz
+                        demodMode:(NSString *)demodMode
+                       rxFilterHz:(double)rxFilterHz
+                        rxRFLevel:(float)rxRFLevel
+                     rxAudioLevel:(float)rxAudioLevel
+                        txRFLevel:(float)txRFLevel
+                     txAudioLevel:(float)txAudioLevel {
     self = [super init];
     if (self) {
         _devices = [devices copy];
@@ -62,6 +68,12 @@ using macinhoff::TransportState;
         _txVGAGain = txVGAGain;
         _sampleRate = sampleRate;
         _tunedFrequencyHz = tunedFrequencyHz;
+        _demodMode = [demodMode copy];
+        _rxFilterHz = rxFilterHz;
+        _rxRFLevel = rxRFLevel;
+        _rxAudioLevel = rxAudioLevel;
+        _txRFLevel = txRFLevel;
+        _txAudioLevel = txAudioLevel;
     }
     return self;
 }
@@ -120,7 +132,13 @@ static MHRadioStatusSnapshot *statusSnapshotFromStatus(const StatusSnapshot &sta
                                                    vgaGain:status.vgaGain
                                                  txVGAGain:status.txVGAGain
                                                 sampleRate:status.sampleRate
-                                          tunedFrequencyHz:status.tunedFrequencyHz];
+                                          tunedFrequencyHz:status.tunedFrequencyHz
+                                                 demodMode:stringFromStdString(status.demodMode)
+                                                rxFilterHz:status.rxFilterHz
+                                                 rxRFLevel:status.rxRFLevel
+                                              rxAudioLevel:status.rxAudioLevel
+                                                 txRFLevel:status.txRFLevel
+                                              txAudioLevel:status.txAudioLevel];
 }
 
 @interface MHRadioEngineBridge ()
@@ -175,15 +193,27 @@ static MHRadioStatusSnapshot *statusSnapshotFromStatus(const StatusSnapshot &sta
                                  ampEnabled:(BOOL)ampEnabled
                                     lnaGain:(NSInteger)lnaGain
                                     vgaGain:(NSInteger)vgaGain
-                                  txVGAGain:(NSInteger)txVGAGain {
+                                  txVGAGain:(NSInteger)txVGAGain
+                                       mode:(NSString *)mode
+                                 rxFilterHz:(double)rxFilterHz {
     return statusSnapshotFromStatus(self.manager->applyTuning(
         frequencyHz,
         sampleRate,
         ampEnabled,
         static_cast<int>(lnaGain),
         static_cast<int>(vgaGain),
-        static_cast<int>(txVGAGain)
+        static_cast<int>(txVGAGain),
+        std::string(mode.UTF8String ?: "USB"),
+        rxFilterHz
     ));
+}
+
+- (NSData *)consumeRXAudioSamples:(NSInteger)maxSamples {
+    const auto samples = self.manager->consumeRXAudio(static_cast<std::size_t>(std::max<NSInteger>(0, maxSamples)));
+    if (samples.empty()) {
+        return [NSData data];
+    }
+    return [NSData dataWithBytes:samples.data() length:samples.size() * sizeof(float)];
 }
 
 @end
