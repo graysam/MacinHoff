@@ -1,5 +1,17 @@
 import Foundation
 
+extension MHRadioEngineBridge: @unchecked Sendable {}
+
+private func makeRXSampleProvider(for bridge: MHRadioEngineBridge) -> @Sendable (Int) -> [Float] {
+    { maxSamples in
+        let data = bridge.consumeRXAudioSamples(maxSamples)
+        guard !data.isEmpty else { return [] }
+        return data.withUnsafeBytes { rawBuffer in
+            Array(rawBuffer.bindMemory(to: Float.self))
+        }
+    }
+}
+
 @MainActor
 final class RadioControlViewModel: ObservableObject {
     @Published private(set) var status = RadioDeviceStatus.placeholder
@@ -12,13 +24,7 @@ final class RadioControlViewModel: ObservableObject {
     init() {
         let bridge = MHRadioEngineBridge()
         self.bridge = bridge
-        self.audioOutput = AudioOutputService { maxSamples in
-            let data = bridge.consumeRXAudioSamples(maxSamples)
-            guard !data.isEmpty else { return [] }
-            return data.withUnsafeBytes { rawBuffer in
-                Array(rawBuffer.bindMemory(to: Float.self))
-            }
-        }
+        self.audioOutput = AudioOutputService(sampleProvider: makeRXSampleProvider(for: bridge))
     }
 
     func refresh() {
@@ -52,6 +58,42 @@ final class RadioControlViewModel: ObservableObject {
         updateStatus(with: bridge.stopRX())
     }
 
+    var isRFRunning: Bool {
+        status.transportState == .receiving || status.transportState == .transmitting
+    }
+
+    var txUnlocked: Bool {
+        isRFRunning && status.connectedSerialNumber != nil
+    }
+
+    func startRF(globalSettings: GlobalRadioSettings, bandSession: BandSessionState?) {
+        guard bandSession != nil else { return }
+
+        selectedAudioOutputName = globalSettings.audioOutputName
+        updateStatus(with: bridge.refreshStatus())
+
+        let selectedSerial = resolvedSelectedSerial(from: globalSettings.selectedDeviceSerial)
+        let isRequestedDeviceConnected = requestedDeviceIsConnected(selectedSerial)
+
+        if !isRequestedDeviceConnected {
+            updateStatus(with: bridge.connect(toSerialNumber: selectedSerial))
+        }
+
+        guard status.connectedSerialNumber != nil else { return }
+
+        apply(globalSettings: globalSettings, bandSession: bandSession)
+        updateStatus(with: bridge.startRX())
+    }
+
+    func stopRF() {
+        if isRFRunning {
+            updateStatus(with: bridge.stopRX())
+        }
+        if status.connectedSerialNumber != nil {
+            updateStatus(with: bridge.disconnectDevice())
+        }
+    }
+
     func apply(globalSettings: GlobalRadioSettings, bandSession: BandSessionState?) {
         guard let bandSession else { return }
         selectedAudioOutputName = globalSettings.audioOutputName
@@ -75,6 +117,17 @@ final class RadioControlViewModel: ObservableObject {
             shouldPlay: status.transportState == .receiving,
             outputDeviceName: selectedAudioOutputName
         )
+    }
+
+    private func resolvedSelectedSerial(from selectedSerial: String?) -> String? {
+        guard let selectedSerial, !selectedSerial.isEmpty else { return nil }
+        return selectedSerial
+    }
+
+    private func requestedDeviceIsConnected(_ selectedSerial: String?) -> Bool {
+        guard let connectedSerial = status.connectedSerialNumber else { return false }
+        guard let selectedSerial else { return true }
+        return connectedSerial == selectedSerial
     }
 
     private func map(snapshot: MHRadioStatusSnapshot) -> RadioDeviceStatus {

@@ -61,7 +61,7 @@ final class AudioOutputService {
     private static let framesPerBuffer = 1_024
     private static let queueBufferCount = 4
 
-    private let sampleProvider: (Int) -> [Float]
+    private let sampleProvider: @Sendable (Int) -> [Float]
     private let ringBuffer = FloatRingBuffer(capacity: 48_000 * 4)
     private let stateLock = NSLock()
     private let feederQueue = DispatchQueue(label: "com.sam.MacinHoff.audio-feeder", qos: .userInitiated)
@@ -72,7 +72,7 @@ final class AudioOutputService {
     private var isRunning = false
     private var currentOutputName = "System Default"
 
-    init(sampleProvider: @escaping (Int) -> [Float]) {
+    init(sampleProvider: @escaping @Sendable (Int) -> [Float]) {
         self.sampleProvider = sampleProvider
     }
 

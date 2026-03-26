@@ -73,29 +73,19 @@ struct TransceiverWorkspaceView: View {
             }
             .frame(width: 140)
             .labelsHidden()
-            .disabled(radioModel.status.transportState == .receiving || radioModel.status.transportState == .transmitting)
+            .disabled(radioModel.isRFRunning)
 
-            Button("Connect") {
-                radioModel.connect(selectedSerial: appModel.globalSettings.selectedDeviceSerial)
-                radioModel.apply(globalSettings: appModel.globalSettings, bandSession: appModel.selectedBandSession)
+            Button(radioModel.isRFRunning ? "Stop RF" : "Start RF") {
+                if radioModel.isRFRunning {
+                    radioModel.stopRF()
+                } else {
+                    radioModel.startRF(
+                        globalSettings: appModel.globalSettings,
+                        bandSession: appModel.selectedBandSession
+                    )
+                }
             }
             .buttonStyle(.borderedProminent)
-
-            Button("Disconnect") {
-                radioModel.disconnect()
-            }
-
-            Divider()
-                .frame(height: 24)
-
-            Button("Start RX") {
-                radioModel.startRX()
-            }
-            .buttonStyle(.borderedProminent)
-
-            Button("Stop RX") {
-                radioModel.stopRX()
-            }
 
             Button("Pop Out") {
                 openWindow(id: "waterfall")
@@ -151,6 +141,8 @@ struct TransceiverWorkspaceView: View {
                 Spacer(minLength: 0)
             }
         }
+        .disabled(!radioModel.txUnlocked)
+        .opacity(radioModel.txUnlocked ? 1 : 0.55)
     }
 
     private func globalSection(band: BandDefinition, session: BandSessionState) -> some View {
