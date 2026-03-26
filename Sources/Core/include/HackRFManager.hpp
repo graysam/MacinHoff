@@ -77,7 +77,8 @@ private:
                                      int vgaGain,
                                      int txVGAGain,
                                      const std::string& demodMode,
-                                     double rxFilterHz);
+                                     double rxFilterHz,
+                                     bool resumeRX);
 
     Impl* impl_ = nullptr;
 };

@@ -106,6 +106,9 @@ struct HackRFManager::Impl {
     }
 
     ~Impl() {
+        if (device != nullptr && hackrf_is_streaming(device) == HACKRF_TRUE) {
+            hackrf_stop_rx(device);
+        }
         closeDevice();
         if (libraryInitialized) {
             hackrf_exit();
@@ -127,9 +130,6 @@ struct HackRFManager::Impl {
 
     void closeDevice() {
         if (device != nullptr) {
-            if (hackrf_is_streaming(device) == HACKRF_TRUE) {
-                hackrf_stop_rx(device);
-            }
             hackrf_close(device);
             device = nullptr;
         }
@@ -437,13 +437,35 @@ StatusSnapshot HackRFManager::connect(const std::optional<std::string>& serialNu
                              state.status.vgaGain,
                              state.status.txVGAGain,
                              state.status.demodMode,
-                             state.status.rxFilterHz);
+                             state.status.rxFilterHz,
+                             false);
 }
 
 StatusSnapshot HackRFManager::disconnect() {
     auto& state = impl();
+    hackrf_device* device = nullptr;
+    bool wasStreaming = false;
+
+    {
+        std::lock_guard lock(state.mutex);
+        state.status.lastError.reset();
+        device = state.device;
+        wasStreaming = state.isStreaming();
+    }
+
+    if (device != nullptr && wasStreaming) {
+        try {
+            expectSuccess(hackrf_stop_rx(device), "hackrf_stop_rx");
+        } catch (const std::exception& exception) {
+            std::lock_guard lock(state.mutex);
+            state.status.transportState = TransportState::fault;
+            state.status.lastError = exception.what();
+            state.status.connectionSummary = "HackRF RX stop failed";
+            return state.status;
+        }
+    }
+
     std::lock_guard lock(state.mutex);
-    state.status.lastError.reset();
     state.closeDevice();
     state.enumerateDevices();
     return state.status;
@@ -481,17 +503,25 @@ StatusSnapshot HackRFManager::startRX() {
 
 StatusSnapshot HackRFManager::stopRX() {
     auto& state = impl();
-    std::lock_guard lock(state.mutex);
+    hackrf_device* device = nullptr;
+    bool wasStreaming = false;
 
-    if (state.device == nullptr) {
-        state.status.transportState = TransportState::idle;
-        return state.status;
+    {
+        std::lock_guard lock(state.mutex);
+        if (state.device == nullptr) {
+            state.status.transportState = TransportState::idle;
+            return state.status;
+        }
+
+        device = state.device;
+        wasStreaming = state.isStreaming();
     }
 
-    if (state.isStreaming()) {
+    if (device != nullptr && wasStreaming) {
         try {
-            expectSuccess(hackrf_stop_rx(state.device), "hackrf_stop_rx");
+            expectSuccess(hackrf_stop_rx(device), "hackrf_stop_rx");
         } catch (const std::exception& exception) {
+            std::lock_guard lock(state.mutex);
             state.status.transportState = TransportState::fault;
             state.status.lastError = exception.what();
             state.status.connectionSummary = "HackRF RX stop failed";
@@ -499,6 +529,7 @@ StatusSnapshot HackRFManager::stopRX() {
         }
     }
 
+    std::lock_guard lock(state.mutex);
     state.status.transportState = TransportState::idle;
     state.status.connectionSummary = "Connected to " + state.status.connectedSerialNumber.value_or("HackRF");
     std::fill(state.status.spectrumBins.begin(), state.status.spectrumBins.end(), 0.0f);
@@ -515,8 +546,29 @@ StatusSnapshot HackRFManager::applyTuning(std::uint64_t frequencyHz,
                                           const std::string& demodMode,
                                           double rxFilterHz) {
     auto& state = impl();
+    hackrf_device* device = nullptr;
+    bool resumeRX = false;
+
+    {
+        std::lock_guard lock(state.mutex);
+        device = state.device;
+        resumeRX = state.isStreaming();
+    }
+
+    if (device != nullptr && resumeRX) {
+        try {
+            expectSuccess(hackrf_stop_rx(device), "hackrf_stop_rx");
+        } catch (const std::exception& exception) {
+            std::lock_guard lock(state.mutex);
+            state.status.transportState = TransportState::fault;
+            state.status.lastError = exception.what();
+            state.status.connectionSummary = "HackRF reconfiguration fault";
+            return state.status;
+        }
+    }
+
     std::lock_guard lock(state.mutex);
-    return applyTuningLocked(frequencyHz, sampleRate, ampEnabled, lnaGain, vgaGain, txVGAGain, demodMode, rxFilterHz);
+    return applyTuningLocked(frequencyHz, sampleRate, ampEnabled, lnaGain, vgaGain, txVGAGain, demodMode, rxFilterHz, resumeRX);
 }
 
 StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
@@ -526,7 +578,8 @@ StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
                                                 int vgaGain,
                                                 int txVGAGain,
                                                 const std::string& demodMode,
-                                                double rxFilterHz) {
+                                                double rxFilterHz,
+                                                bool resumeRX) {
     auto& state = impl();
 
     state.status.tunedFrequencyHz = frequencyHz;
@@ -546,18 +599,6 @@ StatusSnapshot HackRFManager::applyTuningLocked(std::uint64_t frequencyHz,
     }
 
     state.status.lastError.reset();
-    const bool resumeRX = state.isStreaming();
-
-    if (resumeRX) {
-        try {
-            expectSuccess(hackrf_stop_rx(state.device), "hackrf_stop_rx");
-        } catch (const std::exception& exception) {
-            state.status.transportState = TransportState::fault;
-            state.status.lastError = exception.what();
-            state.status.connectionSummary = "HackRF reconfiguration fault";
-            return state.status;
-        }
-    }
 
     try {
         expectSuccess(hackrf_set_sample_rate(state.device, sampleRate), "hackrf_set_sample_rate");
